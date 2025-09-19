@@ -7,8 +7,10 @@ import {
   StyleSheet,
   Modal,
   Animated,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useThemeContext } from '../providers/ThemeProvider';
 
 export interface FilterOptions {
@@ -47,6 +49,9 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
     dateTo: undefined,
     hasLocation: undefined,
   });
+  
+  const [showDateFromPicker, setShowDateFromPicker] = useState(false);
+  const [showDateToPicker, setShowDateToPicker] = useState(false);
   
   const modalSlideAnim = useRef(new Animated.Value(0)).current;
   const modalOpacity = useRef(new Animated.Value(0)).current;
@@ -126,6 +131,28 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR');
+  };
+
+  const handleDateFromChange = (event: any, selectedDate?: Date) => {
+    setShowDateFromPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setTempFilters(prev => ({ ...prev, dateFrom: selectedDate }));
+    }
+  };
+
+  const handleDateToChange = (event: any, selectedDate?: Date) => {
+    setShowDateToPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setTempFilters(prev => ({ ...prev, dateTo: selectedDate }));
+    }
+  };
+
+  const openDateFromPicker = () => {
+    setShowDateFromPicker(true);
+  };
+
+  const openDateToPicker = () => {
+    setShowDateToPicker(true);
   };
 
   const hasActiveFilters = tempFilters.dateFrom || tempFilters.dateTo || tempFilters.hasLocation !== undefined;
@@ -215,12 +242,18 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
             <View style={[styles.filterSection, { borderBottomColor: theme.colors.border }]}>
               <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Data</Text>
               <View style={styles.dateContainer}>
-                <TouchableOpacity style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
+                <TouchableOpacity 
+                  style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}
+                  onPress={openDateFromPicker}
+                >
                   <Text style={[styles.dateButtonText, { color: theme.colors.subtext }]}>
                     De: {tempFilters.dateFrom ? formatDate(tempFilters.dateFrom) : 'Selecionar'}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
+                <TouchableOpacity 
+                  style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}
+                  onPress={openDateToPicker}
+                >
                   <Text style={[styles.dateButtonText, { color: theme.colors.subtext }]}>
                     Até: {tempFilters.dateTo ? formatDate(tempFilters.dateTo) : 'Selecionar'}
                   </Text>
@@ -291,6 +324,24 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
           </Animated.View>
         </Animated.View>
       </Modal>
+
+      {showDateFromPicker && (
+        <DateTimePicker
+          value={tempFilters.dateFrom || new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDateFromChange}
+        />
+      )}
+
+      {showDateToPicker && (
+        <DateTimePicker
+          value={tempFilters.dateTo || new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDateToChange}
+        />
+      )}
     </View>
   );
 };
@@ -335,8 +386,8 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   filterButtonActive: {
-    borderColor: '#007AFF',
-    backgroundColor: '#f0f8ff',
+    borderColor: '#F6CD63', // Amarelo
+    backgroundColor: '#FFF9E6', // Fundo amarelo claro
   },
   modalOverlay: {
     flex: 1,
@@ -405,8 +456,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationOptionActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#F6CD63', // Amarelo
+    borderColor: '#F6CD63', // Amarelo
   },
   locationOptionText: {
     fontSize: 14,
@@ -437,7 +488,7 @@ const styles = StyleSheet.create({
   applyButton: {
     flex: 1,
     padding: 14,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#F6CD63', // Amarelo
     borderRadius: 8,
     alignItems: 'center',
   },

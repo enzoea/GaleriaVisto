@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#F6CD63', // Amarelo para botão primário
   },
   secondaryButton: {
     backgroundColor: 'transparent',

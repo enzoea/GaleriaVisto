@@ -16,7 +16,11 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
       <TouchableOpacity
         style={styles.heading}
         onPress={() => setIsOpen((value) => !value)}
-        activeOpacity={0.8}>
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={`${isOpen ? 'Recolher' : 'Expandir'} seção ${title}`}
+        accessibilityHint={`Toque para ${isOpen ? 'recolher' : 'expandir'} o conteúdo desta seção`}
+        accessibilityState={{ expanded: isOpen }}>
         <IconSymbol
           name="chevron.right"
           size={18}

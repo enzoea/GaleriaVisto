@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#F6CD63', // Amarelo para botão primário
   },
   cancelButtonText: {
     color: '#666',

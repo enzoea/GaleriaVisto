@@ -27,8 +27,23 @@ jest.mock('react-native-reanimated', () => ({
   },
 }));
 
-// Mock para styled-components
-jest.mock('styled-components/native', () => ({
-  default: jest.fn(() => jest.fn()),
-  ThemeProvider: ({ children }: any) => children,
+// Mock para styled-components (usando arquivo de mock)
+jest.mock('styled-components/native');
+
+// Mock para expo-status-bar
+jest.mock('expo-status-bar', () => ({
+  StatusBar: jest.fn(() => null),
+}));
+
+// Mock para expo-constants
+jest.mock('expo-constants', () => ({
+  default: {
+    statusBarHeight: 20,
+  },
+}));
+
+// Mock para expo-font
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn(),
+  isLoaded: jest.fn(() => true),
 }));

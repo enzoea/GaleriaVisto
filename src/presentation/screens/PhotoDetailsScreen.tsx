@@ -19,6 +19,7 @@ interface ThemeProps {
       primary: string;
       success: string;
       warning: string;
+      danger: string;
     };
     spacing: (n: number) => number;
     radius: {
@@ -28,12 +29,12 @@ interface ThemeProps {
   };
 }
 
-const Container = styled.View`
+const Container = styled.View<ThemeProps>`
   flex: 1;
   background: ${({theme}: ThemeProps) => theme.colors.background};
 `;
 
-const Header = styled.View`
+const Header = styled.View<ThemeProps>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -44,32 +45,32 @@ const Header = styled.View`
   border-bottom-color: ${({theme}: ThemeProps) => theme.colors.border};
 `;
 
-const BackButton = styled.Pressable`
+const BackButton = styled.Pressable<ThemeProps>`
   padding: ${({theme}: ThemeProps) => theme.spacing(1)}px;
   border-radius: ${({theme}: ThemeProps) => theme.radius.md}px;
 `;
 
-const HeaderTitle = styled.Text`
+const HeaderTitle = styled.Text<ThemeProps>`
   color: ${({theme}: ThemeProps) => theme.colors.text};
   font-size: 18px;
   font-weight: 600;
 `;
 
-const HeaderActions = styled.View`
+const HeaderActions = styled.View<ThemeProps>`
   flex-direction: row;
   gap: ${({theme}: ThemeProps) => theme.spacing(1)}px;
 `;
 
-const ActionButton = styled.Pressable`
+const ActionButton = styled.Pressable<ThemeProps>`
   padding: ${({theme}: ThemeProps) => theme.spacing(1)}px;
   border-radius: ${({theme}: ThemeProps) => theme.radius.md}px;
 `;
 
-const ScrollContainer = styled(ScrollView)`
+const ScrollContainer = styled(ScrollView)<ThemeProps>`
   flex: 1;
 `;
 
-const PhotoContainer = styled.View`
+const PhotoContainer = styled.View<ThemeProps>`
   background: ${({theme}: ThemeProps) => theme.colors.card};
   margin: ${({theme}: ThemeProps) => theme.spacing(2)}px;
   border-radius: ${({theme}: ThemeProps) => theme.radius.lg}px;
@@ -77,13 +78,13 @@ const PhotoContainer = styled.View`
   border: 1px solid ${({theme}: ThemeProps) => theme.colors.border};
 `;
 
-const PhotoImage = styled.Image`
+const PhotoImage = styled.Image<ThemeProps>`
   width: 100%;
   height: 300px;
   border-radius: ${({theme}: ThemeProps) => theme.radius.md}px;
 `;
 
-const InfoSection = styled.View`
+const InfoSection = styled.View<ThemeProps>`
   background: ${({theme}: ThemeProps) => theme.colors.card};
   margin: ${({theme}: ThemeProps) => theme.spacing(2)}px;
   margin-top: 0;
@@ -91,19 +92,19 @@ const InfoSection = styled.View`
   border: 1px solid ${({theme}: ThemeProps) => theme.colors.border};
 `;
 
-const SectionHeader = styled.View`
+const SectionHeader = styled.View<ThemeProps>`
   padding: ${({theme}: ThemeProps) => theme.spacing(3)}px;
   border-bottom-width: 1px;
   border-bottom-color: ${({theme}: ThemeProps) => theme.colors.border};
 `;
 
-const SectionTitle = styled.Text`
+const SectionTitle = styled.Text<ThemeProps>`
   color: ${({theme}: ThemeProps) => theme.colors.text};
   font-size: 18px;
   font-weight: 600;
 `;
 
-const InfoRow = styled.View`
+const InfoRow = styled.View<ThemeProps>`
   flex-direction: row;
   align-items: center;
   padding: ${({theme}: ThemeProps) => theme.spacing(3)}px;
@@ -111,7 +112,7 @@ const InfoRow = styled.View`
   border-bottom-color: ${({theme}: ThemeProps) => theme.colors.border};
 `;
 
-const InfoIcon = styled.View`
+const InfoIcon = styled.View<ThemeProps>`
   width: 40px;
   height: 40px;
   border-radius: 20px;
@@ -121,24 +122,24 @@ const InfoIcon = styled.View`
   margin-right: ${({theme}: ThemeProps) => theme.spacing(3)}px;
 `;
 
-const InfoContent = styled.View`
+const InfoContent = styled.View<ThemeProps>`
   flex: 1;
 `;
 
-const InfoLabel = styled.Text`
+const InfoLabel = styled.Text<ThemeProps>`
   color: ${({theme}: ThemeProps) => theme.colors.subtext};
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 2px;
 `;
 
-const InfoValue = styled.Text`
+const InfoValue = styled.Text<ThemeProps>`
   color: ${({theme}: ThemeProps) => theme.colors.text};
   font-size: 16px;
   font-weight: 400;
 `;
 
-const TechnicalInfoSection = styled.View`
+const TechnicalInfoSection = styled.View<ThemeProps>`
   background: ${({theme}: ThemeProps) => theme.colors.card};
   margin: ${({theme}: ThemeProps) => theme.spacing(2)}px;
   margin-top: 0;
@@ -146,19 +147,19 @@ const TechnicalInfoSection = styled.View`
   border: 1px solid ${({theme}: ThemeProps) => theme.colors.border};
 `;
 
-const TechnicalGrid = styled.View`
+const TechnicalGrid = styled.View<ThemeProps>`
   flex-direction: row;
   flex-wrap: wrap;
   padding: ${({theme}: ThemeProps) => theme.spacing(2)}px;
 `;
 
-const TechnicalItem = styled.View`
+const TechnicalItem = styled.View<ThemeProps>`
   width: 50%;
   padding: ${({theme}: ThemeProps) => theme.spacing(2)}px;
   align-items: center;
 `;
 
-const TechnicalIcon = styled.View`
+const TechnicalIcon = styled.View<ThemeProps>`
   width: 50px;
   height: 50px;
   border-radius: 25px;
@@ -168,7 +169,7 @@ const TechnicalIcon = styled.View`
   margin-bottom: ${({theme}: ThemeProps) => theme.spacing(1)}px;
 `;
 
-const TechnicalLabel = styled.Text`
+const TechnicalLabel = styled.Text<ThemeProps>`
   color: ${({theme}: ThemeProps) => theme.colors.subtext};
   font-size: 12px;
   font-weight: 500;
@@ -176,24 +177,24 @@ const TechnicalLabel = styled.Text`
   margin-bottom: 2px;
 `;
 
-const TechnicalValue = styled.Text`
+const TechnicalValue = styled.Text<ThemeProps>`
   color: ${({theme}: ThemeProps) => theme.colors.text};
   font-size: 14px;
   font-weight: 600;
   text-align: center;
 `;
 
-const BottomActions = styled.View`
+const BottomActions = styled.View<ThemeProps>`
   padding: ${({theme}: ThemeProps) => theme.spacing(3)}px;
   background: ${({theme}: ThemeProps) => theme.colors.background};
 `;
 
-const ActionButtonsRow = styled.View`
+const ActionButtonsRow = styled.View<ThemeProps>`
   flex-direction: row;
   gap: ${({theme}: ThemeProps) => theme.spacing(2)}px;
 `;
 
-const PrimaryButton = styled.Pressable`
+const PrimaryButton = styled.Pressable<ThemeProps>`
   flex: 1;
   background: ${({theme}: ThemeProps) => theme.colors.primary};
   padding: ${({theme}: ThemeProps) => theme.spacing(3)}px;
@@ -204,9 +205,9 @@ const PrimaryButton = styled.Pressable`
   gap: ${({theme}: ThemeProps) => theme.spacing(1)}px;
 `;
 
-const SecondaryButton = styled.Pressable`
+const SecondaryButton = styled.Pressable<ThemeProps>`
   flex: 1;
-  background: ${({theme}: ThemeProps) => theme.colors.warning};
+  background: ${({theme}: ThemeProps) => theme.colors.danger}; // Laranja para ação crítica
   padding: ${({theme}: ThemeProps) => theme.spacing(3)}px;
   border-radius: ${({theme}: ThemeProps) => theme.radius.md}px;
   flex-direction: row;
@@ -215,7 +216,7 @@ const SecondaryButton = styled.Pressable`
   gap: ${({theme}: ThemeProps) => theme.spacing(1)}px;
 `;
 
-const ButtonText = styled.Text`
+const ButtonText = styled.Text<ThemeProps>`
   color: white;
   font-size: 16px;
   font-weight: 600;

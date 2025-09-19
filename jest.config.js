@@ -9,7 +9,7 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo|@expo|react-native-reanimated|react-native-gesture-handler|styled-components)/)',
+    'node_modules/(?!(react-native|@react-native|expo|@expo|expo-status-bar|expo-constants|expo-font|react-native-reanimated|react-native-gesture-handler|styled-components)/)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -19,6 +19,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/test/**/*',
+    '!src/test/**',
   ],
+  moduleDirectories: ['node_modules', 'src/test/__mocks__'],
 };

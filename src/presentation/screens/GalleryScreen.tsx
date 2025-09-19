@@ -21,6 +21,9 @@ interface ThemeProps {
       card: string;
       text: string;
       border: string;
+      primary: string;
+      danger: string;
+      primaryBackground?: string;
     };
     spacing: (n: number) => number;
     radius: {
@@ -90,8 +93,8 @@ const LocationText = styled.Text`
   margin-top: 2px;
 `;
 
-const DeleteButton = styled.Pressable`
-  background: #ff4444;
+const DeleteButton = styled.Pressable<ThemeProps>`
+  background: ${({theme}: ThemeProps) => theme.colors.danger}; // Laranja para ação crítica
   padding: ${({theme}: ThemeProps) => theme.spacing(0.5)}px ${({theme}: ThemeProps) => theme.spacing(1)}px;
   border-radius: ${({theme}: ThemeProps) => theme.radius.md}px;
 `;
@@ -108,16 +111,16 @@ const LoadingContainer = styled.View`
   align-items: center;
 `;
 
-const FilterSummary = styled.View`
+const FilterSummary = styled.View<ThemeProps>`
   padding: 12px 16px;
-  background: #f0f8ff;
+  background: ${({theme}: ThemeProps) => theme.colors.primaryBackground || '#FFF9E6'};
   border-left-width: 4px;
-  border-left-color: #007AFF;
+  border-left-color: ${({theme}: ThemeProps) => theme.colors.primary}; // Amarelo
   margin-bottom: 8px;
 `;
 
-const FilterSummaryText = styled.Text`
-  color: #007AFF;
+const FilterSummaryText = styled.Text<ThemeProps>`
+  color: ${({theme}: ThemeProps) => theme.colors.primary}; // Amarelo
   font-size: 12px;
   font-weight: 500;
 `;
@@ -135,21 +138,18 @@ const CounterText = styled.Text`
   font-size: 12px;
 `;
 
-const CompareButton = styled(TouchableOpacity)`
+const CompareButton = styled(TouchableOpacity)<ThemeProps>`
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background: #007AFF;
+  background: ${({theme}: ThemeProps) => theme.colors.primary}; // Amarelo
   width: 56px;
   height: 56px;
   border-radius: 28px;
   justify-content: center;
   align-items: center;
   elevation: 5;
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.25;
-  shadow-radius: 3.84px;
+  box-shadow: 0px 2px 3.84px rgba(0, 0, 0, 0.25);
 `;
 
 const HeaderContainer = styled.View`
@@ -157,7 +157,8 @@ const HeaderContainer = styled.View`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${({theme}: ThemeProps) => theme.spacing(2)}px;
-  padding-horizontal: ${({theme}: ThemeProps) => theme.spacing(1)}px;
+  padding-left: ${({theme}: ThemeProps) => theme.spacing(1)}px;
+  padding-right: ${({theme}: ThemeProps) => theme.spacing(1)}px;
 `;
 
 const HeaderTitle = styled.Text`
@@ -166,18 +167,15 @@ const HeaderTitle = styled.Text`
   font-weight: bold;
 `;
 
-const AddPhotoButton = styled.Pressable`
-  background: #007AFF;
+const AddPhotoButton = styled.Pressable<ThemeProps>`
+  background: ${({theme}: ThemeProps) => theme.colors.primary}; // Amarelo
   width: 44px;
   height: 44px;
   border-radius: 22px;
   justify-content: center;
   align-items: center;
   elevation: 3;
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.15;
-  shadow-radius: 2px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
 `;
 
 const AddPhotoIcon = styled.Text`

@@ -19,6 +19,9 @@ export const ThemeDebug: React.FC = () => {
         <TouchableOpacity 
           style={[styles.button, { backgroundColor: theme.colors.primary }]}
           onPress={() => setTheme('light')}
+          accessibilityRole="button"
+          accessibilityLabel="Definir tema claro"
+          accessibilityHint="Altera o tema da aplicação para o modo claro"
         >
           <Text style={styles.buttonText}>Claro</Text>
         </TouchableOpacity>
@@ -26,6 +29,9 @@ export const ThemeDebug: React.FC = () => {
         <TouchableOpacity 
           style={[styles.button, { backgroundColor: theme.colors.primary }]}
           onPress={() => setTheme('dark')}
+          accessibilityRole="button"
+          accessibilityLabel="Definir tema escuro"
+          accessibilityHint="Altera o tema da aplicação para o modo escuro"
         >
           <Text style={styles.buttonText}>Escuro</Text>
         </TouchableOpacity>
@@ -33,6 +39,9 @@ export const ThemeDebug: React.FC = () => {
         <TouchableOpacity 
           style={[styles.button, { backgroundColor: theme.colors.primary }]}
           onPress={() => setTheme('auto')}
+          accessibilityRole="button"
+          accessibilityLabel="Definir tema automático"
+          accessibilityHint="Altera o tema da aplicação para seguir as configurações do sistema"
         >
           <Text style={styles.buttonText}>Auto</Text>
         </TouchableOpacity>
@@ -40,6 +49,9 @@ export const ThemeDebug: React.FC = () => {
         <TouchableOpacity 
           style={[styles.button, { backgroundColor: theme.colors.success }]}
           onPress={toggleTheme}
+          accessibilityRole="button"
+          accessibilityLabel="Alternar tema"
+          accessibilityHint="Alterna entre os temas disponíveis"
         >
           <Text style={styles.buttonText}>Toggle</Text>
         </TouchableOpacity>
