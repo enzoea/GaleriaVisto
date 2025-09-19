@@ -98,22 +98,34 @@ export const AnimatedPhotoCard: React.FC<AnimatedPhotoCardProps> = ({
   };
 
   const handleDeletePhoto = () => {
-    // Remover o Alert.alert daqui para evitar popup duplo
-    // Apenas executar a animação e chamar onDelete
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: -50,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onDelete(photo.id);
-    });
+    Alert.alert(
+      'Deletar Foto',
+      'Tem certeza que deseja deletar esta foto?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Deletar', 
+          style: 'destructive',
+          onPress: () => {
+            // Executar animação apenas após confirmação
+            Animated.parallel([
+              Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+              }),
+              Animated.timing(slideAnim, {
+                toValue: -50,
+                duration: 300,
+                useNativeDriver: true,
+              }),
+            ]).start(() => {
+              onDelete(photo.id);
+            });
+          }
+        }
+      ]
+    );
   };
 
   const formatDate = (timestamp: number) => {

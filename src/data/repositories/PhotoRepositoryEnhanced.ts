@@ -1,3 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import {
   Photo,
   PhotoId,
@@ -9,37 +12,72 @@ import {
   PaginatedResult,
   PhotoStats,
   Location,
+  PhotoMetadata,
 } from '../../domain/photo/types';
-import { PhotoRepository } from '../../domain/photo/repository';
-import * as FileSystem from 'expo-file-system';
-import { File, Paths } from 'expo-file-system';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PhotoRepository, PhotoRepositoryObserver } from '../../domain/photo/repository';
 
-const PHOTOS_STORAGE_KEY = '@galeria_visto_photos';
+const PHOTOS_STORAGE_KEY = '@galeria_visto_photos_v2';
+const METADATA_STORAGE_KEY = '@galeria_visto_metadata_v2';
 
-export class PhotoRepositoryImpl implements PhotoRepository {
-  // Operações básicas CRUD
+export class PhotoRepositoryEnhanced implements PhotoRepository, PhotoRepositoryObserver {
+  private listeners: Map<string, Function[]> = new Map();
+
+  // Implementação do padrão Observer
+  on<K extends keyof any>(event: K, listener: Function): void {
+    if (!this.listeners.has(event as string)) {
+      this.listeners.set(event as string, []);
+    }
+    this.listeners.get(event as string)!.push(listener);
+  }
+
+  off<K extends keyof any>(event: K, listener: Function): void {
+    const eventListeners = this.listeners.get(event as string);
+    if (eventListeners) {
+      const index = eventListeners.indexOf(listener);
+      if (index > -1) {
+        eventListeners.splice(index, 1);
+      }
+    }
+  }
+
+  emit<K extends keyof any>(event: K, ...args: any[]): void {
+    const eventListeners = this.listeners.get(event as string);
+    if (eventListeners) {
+      eventListeners.forEach(listener => listener(...args));
+    }
+  }
+
   async create(input: CreatePhotoInput): Promise<OperationResult<Photo>> {
     try {
       const now = Date.now();
       const id = `photo_${now}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Criar arquivo no diretório de documentos
-      const fileName = `photo_${id}.jpg`;
-      const file = new File(Paths.document, fileName);
-      
-      // Copiar foto para diretório permanente
-      const sourceFile = new File(input.uri);
-      await sourceFile.copy(file);
+      // Salvar arquivo físico
+      const fileResult = await this.savePhotoFile(input.uri, id);
+      if (!fileResult.success) {
+        return {
+          success: false,
+          error: fileResult.error,
+        };
+      }
+
+      // Extrair metadados se não fornecidos
+      let metadata = input.metadata;
+      if (!metadata) {
+        const metadataResult = await this.extractBasicMetadata(input.uri);
+        if (metadataResult.success) {
+          metadata = metadataResult.data;
+        }
+      }
 
       const photo: Photo = {
         id,
-        uri: file.uri,
+        uri: fileResult.data!,
         timestamp: now,
         title: input.title,
         description: input.description,
         location: input.location,
-        metadata: input.metadata,
+        metadata,
         tags: input.tags || [],
         isFavorite: false,
         isDeleted: false,
@@ -47,24 +85,29 @@ export class PhotoRepositoryImpl implements PhotoRepository {
         updatedAt: now,
       };
 
-      // Salvar no AsyncStorage
+      // Salvar no storage
       const photos = await this.loadPhotosFromStorage();
       photos.unshift(photo);
       await this.savePhotosToStorage(photos);
+
+      this.emit('photo:created', photo);
       
       return {
         success: true,
         data: photo,
       };
     } catch (error) {
-      return {
+      const errorResult = {
         success: false,
         error: {
           code: 'CREATE_FAILED',
-          message: 'Não foi possível criar a foto',
+          message: 'Falha ao criar foto',
           details: error,
         },
-      };
+      } as OperationResult<Photo>;
+      
+      this.emit('error', new Error(errorResult.error!.message));
+      return errorResult;
     }
   }
 
@@ -123,6 +166,8 @@ export class PhotoRepositoryImpl implements PhotoRepository {
       photos[photoIndex] = updatedPhoto;
       await this.savePhotosToStorage(photos);
 
+      this.emit('photo:updated', updatedPhoto);
+
       return {
         success: true,
         data: updatedPhoto,
@@ -142,7 +187,7 @@ export class PhotoRepositoryImpl implements PhotoRepository {
   async delete(id: PhotoId): Promise<OperationResult<void>> {
     try {
       const photos = await this.loadPhotosFromStorage();
-      const photoIndex = photos.findIndex(p => p.id === id && !p.isDeleted);
+      const photoIndex = photos.findIndex(p => p.id === id);
       
       if (photoIndex === -1) {
         return {
@@ -156,15 +201,23 @@ export class PhotoRepositoryImpl implements PhotoRepository {
 
       const photo = photos[photoIndex];
       
-      // Deletar arquivo físico
-      const file = new File(photo.uri);
-      if (file.exists) {
-        await file.delete();
-      }
+      // Soft delete
+      photo.isDeleted = true;
+      photo.updatedAt = Date.now();
       
-      // Marcar como deletada
-      photos[photoIndex] = { ...photo, isDeleted: true, updatedAt: Date.now() };
       await this.savePhotosToStorage(photos);
+
+      // Deletar arquivo físico
+      try {
+        const file = new File(photo.uri);
+        if (file.exists) {
+          await file.delete();
+        }
+      } catch (fileError) {
+        console.warn('Erro ao deletar arquivo físico:', fileError);
+      }
+
+      this.emit('photo:deleted', id);
 
       return {
         success: true,
@@ -191,23 +244,23 @@ export class PhotoRepositoryImpl implements PhotoRepository {
       
       // Filtrar fotos não deletadas
       photos = photos.filter(p => !p.isDeleted);
-      
+
       // Aplicar filtros
       if (options?.filter) {
         photos = this.applyFilters(photos, options.filter);
       }
-      
+
       // Aplicar ordenação
       if (options?.sort) {
         photos = this.applySorting(photos, options.sort);
       }
-      
+
       // Aplicar paginação
-      const pagination = options?.pagination || { page: 1, pageSize: 50 };
+      const pagination = options?.pagination || { page: 1, pageSize: photos.length };
       const startIndex = (pagination.page - 1) * pagination.pageSize;
       const endIndex = startIndex + pagination.pageSize;
       const paginatedPhotos = photos.slice(startIndex, endIndex);
-      
+
       const result: PaginatedResult<Photo> = {
         items: paginatedPhotos,
         total: photos.length,
@@ -272,14 +325,14 @@ export class PhotoRepositoryImpl implements PhotoRepository {
   async findByTags(tags: string[]): Promise<OperationResult<Photo[]>> {
     try {
       const photos = await this.loadPhotosFromStorage();
-      const filteredPhotos = photos.filter(photo => {
+      const taggedPhotos = photos.filter(photo => {
         if (!photo.tags || photo.isDeleted) return false;
         return tags.some(tag => photo.tags!.includes(tag));
       });
 
       return {
         success: true,
-        data: filteredPhotos,
+        data: taggedPhotos,
       };
     } catch (error) {
       return {
@@ -324,11 +377,13 @@ export class PhotoRepositoryImpl implements PhotoRepository {
         withLocation: activePhotos.filter(p => p.location).length,
         withTags: activePhotos.filter(p => p.tags && p.tags.length > 0).length,
         favorites: activePhotos.filter(p => p.isFavorite).length,
-        totalSize: 0, // Seria necessário calcular o tamanho dos arquivos
+        totalSize: activePhotos.reduce((sum, p) => sum + (p.metadata?.size || 0), 0),
         averageSize: 0,
         oldestPhoto: activePhotos.sort((a, b) => a.timestamp - b.timestamp)[0],
         newestPhoto: activePhotos.sort((a, b) => b.timestamp - a.timestamp)[0],
       };
+
+      stats.averageSize = stats.total > 0 ? stats.totalSize / stats.total : 0;
 
       return {
         success: true,
@@ -354,12 +409,16 @@ export class PhotoRepositoryImpl implements PhotoRepository {
       
       // Remover arquivos físicos das fotos deletadas
       for (const photo of deletedPhotos) {
-        const file = new File(photo.uri);
-        if (file.exists) {
-          await file.delete();
+        try {
+          const file = new File(photo.uri);
+          if (file.exists) {
+            await file.delete();
+          }
+        } catch (error) {
+          console.warn(`Erro ao deletar arquivo ${photo.uri}:`, error);
         }
       }
-      
+
       // Salvar apenas fotos ativas
       await this.savePhotosToStorage(activePhotos);
 
@@ -382,15 +441,20 @@ export class PhotoRepositoryImpl implements PhotoRepository {
   async backup(): Promise<OperationResult<{ backupPath: string }>> {
     try {
       const photos = await this.loadPhotosFromStorage();
-      const backupData = JSON.stringify(photos, null, 2);
-      const backupPath = `${Paths.document}/backup_${Date.now()}.json`;
-      const backupFile = new File(backupPath);
+      const backupData = {
+        photos,
+        timestamp: Date.now(),
+        version: '2.0',
+      };
+
+      const backupFileName = `backup_${Date.now()}.json`;
+      const backupFile = new File(Paths.document, backupFileName);
       
-      await backupFile.write(backupData);
+      await backupFile.write(JSON.stringify(backupData, null, 2));
 
       return {
         success: true,
-        data: { backupPath },
+        data: { backupPath: backupFile.uri },
       };
     } catch (error) {
       return {
@@ -416,15 +480,25 @@ export class PhotoRepositoryImpl implements PhotoRepository {
           },
         };
       }
+
+      const backupContent = await FileSystem.readAsStringAsync(backupPath);
+      const backupData = JSON.parse(backupContent);
       
-      const backupData = await FileSystem.readAsStringAsync(backupPath);
-      const photos: Photo[] = JSON.parse(backupData);
-      
-      await this.savePhotosToStorage(photos);
+      if (!backupData.photos || !Array.isArray(backupData.photos)) {
+        return {
+          success: false,
+          error: {
+            code: 'INVALID_BACKUP',
+            message: 'Arquivo de backup inválido',
+          },
+        };
+      }
+
+      await this.savePhotosToStorage(backupData.photos);
 
       return {
         success: true,
-        data: { restoredCount: photos.length },
+        data: { restoredCount: backupData.photos.length },
       };
     } catch (error) {
       return {
@@ -444,7 +518,7 @@ export class PhotoRepositoryImpl implements PhotoRepository {
       const photosJson = await AsyncStorage.getItem(PHOTOS_STORAGE_KEY);
       return photosJson ? JSON.parse(photosJson) : [];
     } catch (error) {
-      console.error('Erro ao carregar fotos:', error);
+      console.error('Erro ao carregar fotos do storage:', error);
       return [];
     }
   }
@@ -453,8 +527,57 @@ export class PhotoRepositoryImpl implements PhotoRepository {
     await AsyncStorage.setItem(PHOTOS_STORAGE_KEY, JSON.stringify(photos));
   }
 
+  private async savePhotoFile(sourceUri: string, photoId: string): Promise<OperationResult<string>> {
+    try {
+      const fileName = `${photoId}.jpg`;
+      const destinationFile = new File(Paths.document, fileName);
+      const sourceFile = new File(sourceUri);
+      
+      await sourceFile.copy(destinationFile);
+      
+      return {
+        success: true,
+        data: destinationFile.uri,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'FILE_SAVE_FAILED',
+          message: 'Falha ao salvar arquivo',
+          details: error,
+        },
+      };
+    }
+  }
+
+  private async extractBasicMetadata(uri: string): Promise<OperationResult<PhotoMetadata>> {
+    try {
+      const file = new File(uri);
+      const metadata: PhotoMetadata = {
+        size: file.size,
+        format: 'jpg', // Assumindo JPG por padrão
+      };
+
+      return {
+        success: true,
+        data: metadata,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'METADATA_EXTRACTION_FAILED',
+          message: 'Falha ao extrair metadados',
+          details: error,
+        },
+      };
+    }
+  }
+
   private applyFilters(photos: Photo[], filter: PhotoFilter): Photo[] {
     return photos.filter(photo => {
+      // Filtro por texto
       if (filter.searchText) {
         const searchLower = filter.searchText.toLowerCase();
         const titleMatch = photo.title?.toLowerCase().includes(searchLower);
@@ -466,25 +589,44 @@ export class PhotoRepositoryImpl implements PhotoRepository {
         }
       }
 
+      // Filtro por data
       if (filter.dateFrom || filter.dateTo) {
         const photoDate = new Date(photo.timestamp);
+        
         if (filter.dateFrom && photoDate < filter.dateFrom) return false;
         if (filter.dateTo && photoDate > filter.dateTo) return false;
       }
 
+      // Filtro por localização
       if (filter.hasLocation !== undefined) {
         const hasLocation = !!photo.location;
         if (filter.hasLocation !== hasLocation) return false;
       }
 
+      // Filtro por favoritos
       if (filter.isFavorite !== undefined) {
         if (filter.isFavorite !== photo.isFavorite) return false;
       }
 
+      // Filtro por tags
       if (filter.tags && filter.tags.length > 0) {
         if (!photo.tags || !filter.tags.some(tag => photo.tags!.includes(tag))) {
           return false;
         }
+      }
+
+      // Filtro por localização geográfica
+      if (filter.location) {
+        if (!photo.location) return false;
+        
+        const distance = this.calculateDistance(
+          filter.location.latitude,
+          filter.location.longitude,
+          photo.location.latitude,
+          photo.location.longitude
+        );
+        
+        if (distance > filter.location.radius) return false;
       }
 
       return true;
@@ -538,37 +680,5 @@ export class PhotoRepositoryImpl implements PhotoRepository {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
-  }
-
-  // Métodos legados para compatibilidade
-  async savePhoto(photoUri: string, location?: Location, title?: string): Promise<Photo> {
-    const input: CreatePhotoInput = {
-      uri: photoUri,
-      location,
-      title,
-    };
-    
-    const result = await this.create(input);
-    if (result.success) {
-      return result.data!;
-    } else {
-      throw new Error(result.error?.message || 'Erro ao salvar foto');
-    }
-  }
-
-  async getAllPhotos(): Promise<Photo[]> {
-    const result = await this.findAll();
-    if (result.success) {
-      return result.data!.items;
-    } else {
-      return [];
-    }
-  }
-
-  async deletePhoto(id: string): Promise<void> {
-    const result = await this.delete(id);
-    if (!result.success) {
-      throw new Error(result.error?.message || 'Erro ao deletar foto');
-    }
   }
 }

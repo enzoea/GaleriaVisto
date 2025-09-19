@@ -1,20 +1,25 @@
-export interface Location {
-  latitude: number;
-  longitude: number;
-  address?: string;
-}
+// Re-exportando tipos do novo sistema
+export {
+  Photo,
+  Location,
+  PhotoMetadata,
+  PhotoId,
+  CreatePhotoInput,
+  UpdatePhotoInput,
+  PhotoFilter,
+  PhotoSortOptions,
+  OperationResult,
+  PaginatedResult,
+  PhotoStats,
+} from './types';
 
-export interface Photo {
-  id: string;
-  uri: string;
-  timestamp: number;
-  width?: number;
-  height?: number;
-  location?: Location;
-  title?: string;
-}
+export { PhotoRepository } from './repository';
 
-export interface PhotoRepository {
+// Importando tipos para uso na interface legada
+import { Photo, Location } from './types';
+
+// Interface legada para compatibilidade (será removida gradualmente)
+export interface LegacyPhotoRepository {
   savePhoto(photoUri: string, location?: Location, title?: string): Promise<Photo>;
   getAllPhotos(): Promise<Photo[]>;
   deletePhoto(id: string): Promise<void>;

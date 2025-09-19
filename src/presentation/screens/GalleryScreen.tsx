@@ -215,18 +215,8 @@ export default function GalleryScreen() {
   );
 
   const handleDeletePhoto = (id: string) => {
-    Alert.alert(
-      'Deletar Foto',
-      'Tem certeza que deseja deletar esta foto?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Deletar', 
-          style: 'destructive',
-          onPress: () => deletePhoto(id)
-        }
-      ]
-    );
+    // A confirmação agora é feita no AnimatedPhotoCard
+    deletePhoto(id);
   };
 
   const formatDate = (timestamp: number) => {
