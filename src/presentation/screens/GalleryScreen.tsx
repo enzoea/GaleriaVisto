@@ -321,7 +321,7 @@ export default function GalleryScreen() {
         ListHeaderComponent={() => (
           filteredPhotos.length > 0 ? (
             <HeaderContainer>
-              <HeaderTitle>Suas Fotos ({filteredPhotos.length})</HeaderTitle>
+              <HeaderTitle>Suas photos ({filteredPhotos.length})</HeaderTitle>
               <Link href="/camera" asChild>
                 <AddPhotoButton>
                   <AddPhotoIcon>+</AddPhotoIcon>
