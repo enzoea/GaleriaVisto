@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { usePhotos } from '../src/presentation/hooks/usePhotos';
+import { usePhotosEnhanced } from '../src/presentation/hooks/usePhotosEnhanced';
 import { useLocation } from '../src/presentation/hooks/useLocation';
 import { PhotoTitleModal } from '../src/presentation/components/PhotoTitleModal';
 
@@ -17,7 +17,7 @@ export default function CameraScreen() {
   } | null>(null);
   
   const cameraRef = useRef<CameraView>(null);
-  const { savePhoto } = usePhotos();
+  const { savePhoto } = usePhotosEnhanced();
   const { requestLocation, isLoading: locationLoading } = useLocation();
 
   if (!permission) {
@@ -69,11 +69,12 @@ export default function CameraScreen() {
     
     try {
       // Salvar a foto com localização e título
-      const savedPhoto = await savePhoto(
-        capturedPhotoData.uri, 
-        capturedPhotoData.location, 
-        title
-      );
+      const photoData = {
+        uri: capturedPhotoData.uri,
+        title: title,
+        location: capturedPhotoData.location,
+      };
+      const savedPhoto = await savePhoto(photoData);
       
       if (savedPhoto) {
         const locationText = capturedPhotoData.location 

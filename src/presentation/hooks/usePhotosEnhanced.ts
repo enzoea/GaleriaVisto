@@ -31,9 +31,10 @@ export const usePhotosEnhanced = () => {
   }, [createPhoto]);
 
   const getAllPhotos = useCallback(async (): Promise<Photo[]> => {
-    await loadPhotos();
+    // Não chama loadPhotos aqui para evitar loops
+    // As fotos já são carregadas automaticamente pelo PhotoContext
     return state.photos;
-  }, [loadPhotos, state.photos]);
+  }, [state.photos]);
 
   const deletePhotoById = useCallback(async (id: PhotoId): Promise<void> => {
     const result = await deletePhoto(id);

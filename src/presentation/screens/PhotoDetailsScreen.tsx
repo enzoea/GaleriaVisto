@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { useThemeContext } from '../providers/ThemeProvider';
-import { usePhotos } from '../hooks/usePhotos';
+import { usePhotosEnhanced } from '../hooks/usePhotosEnhanced';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 
@@ -225,7 +225,7 @@ export default function PhotoDetailsScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const router = useRouter();
   const { theme } = useThemeContext();
-  const { photos, deletePhoto } = usePhotos();
+  const { photos, deletePhoto } = usePhotosEnhanced();
   const [photo, setPhoto] = useState<any>(null);
   const [imageInfo, setImageInfo] = useState<{
     width: number;

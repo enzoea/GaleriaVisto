@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { FlatList, Pressable, Image, ActivityIndicator, Alert, View, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { Link, useRouter } from "expo-router";
-import { usePhotos } from "../hooks/usePhotos";
+import { usePhotosEnhanced } from "../hooks/usePhotosEnhanced";
 import { usePhotoFilters } from "../hooks/usePhotoFilters";
 import { PhotoSearchFilter } from "../components/PhotoSearchFilter";
 import { useThemeContext } from "../providers/ThemeProvider";
@@ -196,7 +196,7 @@ export default function GalleryScreen() {
   const { theme } = useThemeContext();
   const router = useRouter();
   const [showComparisonModal, setShowComparisonModal] = useState(false);
-  const { photos, loading, error, deletePhoto, refreshPhotos } = usePhotos();
+  const { photos, loading, error, deletePhoto, refreshPhotos } = usePhotosEnhanced();
   const { 
     filters, 
     filteredPhotos, 
@@ -207,12 +207,8 @@ export default function GalleryScreen() {
     getFilterSummary
   } = usePhotoFilters(photos);
 
-  // Recarregar fotos quando a tela ganhar foco
-  useFocusEffect(
-    React.useCallback(() => {
-      refreshPhotos();
-    }, [refreshPhotos])
-  );
+  // Removido useFocusEffect que estava causando loops infinitos
+  // As fotos são carregadas automaticamente pelo PhotoContext
 
   const handleDeletePhoto = (id: string) => {
     // A confirmação agora é feita no AnimatedPhotoCard

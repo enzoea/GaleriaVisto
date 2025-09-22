@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useRef } from 'react';
 import {
   Photo,
   PhotoId,
@@ -10,6 +10,9 @@ import {
   PhotoStats,
 } from '../../domain/photo/types';
 import { PhotoRepositoryEnhanced } from '../../data/repositories/PhotoRepositoryEnhanced';
+
+// Instância singleton do repositório
+const repositoryInstance = new PhotoRepositoryEnhanced();
 
 // Estado do contexto
 interface PhotoState {
@@ -201,7 +204,9 @@ interface PhotoProviderProps {
 
 export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(photoReducer, initialState);
-  const repository = new PhotoRepositoryEnhanced();
+  const repository = repositoryInstance;
+  const isLoadingRef = useRef(false);
+  const isInitializedRef = useRef(false);
 
   // Configurar listeners do repositório
   useEffect(() => {
@@ -310,20 +315,29 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
 
   // Operações de busca
   const loadPhotos = useCallback(async () => {
+    if (isLoadingRef.current) {
+      return; // Evita chamadas simultâneas
+    }
+    
+    isLoadingRef.current = true;
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
     
-    const result = await repository.findAll({
-      filter: state.filter,
-      sort: state.sortOptions,
-    });
-    
-    if (result.success) {
-      dispatch({ type: 'SET_PHOTOS', payload: result.data!.items });
-    } else {
-      dispatch({ type: 'SET_ERROR', payload: result.error?.message || 'Erro ao carregar fotos' });
+    try {
+      const result = await repository.findAll({
+        filter: state.filter,
+        sort: state.sortOptions,
+      });
+      
+      if (result.success) {
+        dispatch({ type: 'SET_PHOTOS', payload: result.data!.items });
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: result.error?.message || 'Erro ao carregar fotos' });
+      }
+    } finally {
+      isLoadingRef.current = false;
     }
-  }, [repository, state.filter, state.sortOptions]);
+  }, [repository]);
 
   const refreshPhotos = useCallback(async () => {
     await loadPhotos();
@@ -342,7 +356,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
     } else {
       dispatch({ type: 'SET_ERROR', payload: result.error?.message || 'Erro ao buscar fotos' });
     }
-  }, [repository, state.sortOptions]);
+  }, [repository]);
 
   // Operações de filtro e ordenação
   const setFilter = useCallback((filter: PhotoFilter) => {
@@ -389,7 +403,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
     } else {
       dispatch({ type: 'SET_ERROR', payload: result.error?.message || 'Erro ao atualizar favorito' });
     }
-  }, [repository, state.photos]);
+  }, [repository]);
 
   // Operações de estatísticas
   const loadStats = useCallback(async () => {
@@ -423,8 +437,31 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
 
   // Carregar fotos na inicialização
   useEffect(() => {
-    loadPhotos();
-  }, []);
+    if (isInitializedRef.current) {
+      return; // Evita múltiplas inicializações
+    }
+    
+    const initializePhotos = async () => {
+      isInitializedRef.current = true;
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      const result = await repository.findAll({
+        filter: {},
+        sort: { field: 'timestamp', direction: 'desc' },
+      });
+      
+      if (result.success) {
+        dispatch({ type: 'SET_PHOTOS', payload: result.data!.items });
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: result.error?.message || 'Erro ao carregar fotos' });
+      }
+      
+      dispatch({ type: 'SET_LOADING', payload: false });
+    };
+    
+    initializePhotos();
+  }, [repository]);
 
   const contextValue: PhotoContextType = {
     state,
