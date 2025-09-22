@@ -206,7 +206,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
           onPress={handleDelete}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.deleteIcon}>×</Text>
+          <Text style={[styles.deleteIcon, { color: '#FFFFFF' }]}>×</Text>
         </TouchableOpacity>
       )}
     </Animated.View>
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: tokens.spacing.xs,
     left: tokens.spacing.xs,
-    backgroundColor: tokens.colors.error.main,
+    backgroundColor: tokens.colors.warning.delete,
     borderRadius: tokens.borderRadius.full,
     width: 24,
     height: 24,
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteIcon: {
-    color: tokens.colors.error.contrast,
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },

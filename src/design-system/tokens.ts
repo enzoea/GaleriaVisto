@@ -55,6 +55,9 @@ export const tokens = {
       700: '#FFA000',
       800: '#FF8F00',
       900: '#FF6F00',
+      main: '#FFC107',
+      contrast: '#FFFFFF',
+      delete: '#ec8800',
     },
     
     error: {
@@ -68,6 +71,8 @@ export const tokens = {
       700: '#D32F2F',
       800: '#C62828',
       900: '#B71C1C',
+      main: '#F44336',
+      contrast: '#FFFFFF',
     },
     
     info: {

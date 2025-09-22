@@ -84,10 +84,7 @@ export const usePhotosEnhanced = () => {
 
     // Métodos novos do Context API
     createPhoto,
-    updatePhoto: updatePhoto,
-    deletePhoto: deletePhoto,
     loadPhotos,
-    refreshPhotos,
   };
 };
 

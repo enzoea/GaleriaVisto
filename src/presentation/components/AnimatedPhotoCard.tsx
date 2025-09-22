@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, View, Alert, Text, Image, StyleSheet } from 'react-native';
 import { useThemeContext } from '../providers/ThemeProvider';
+import { tokens } from '../../design-system/tokens';
 
 interface Photo {
   id: string;
@@ -189,7 +190,7 @@ export const AnimatedPhotoCard: React.FC<AnimatedPhotoCardProps> = ({
       marginLeft: theme.spacing(0.5),
     },
     actionText: {
-      color: 'white',
+      color: '#FFFFFF',
       fontSize: 12,
       fontWeight: '600',
     },
@@ -240,12 +241,12 @@ export const AnimatedPhotoCard: React.FC<AnimatedPhotoCardProps> = ({
                     style={[
                       styles.actionButton,
                       { 
-                        backgroundColor: '#ff4444', 
+                        backgroundColor: tokens.colors.warning.delete, 
                         transform: [{ scale: deleteScaleAnim }] 
                       }
                     ]}
                   >
-                    <Text style={styles.actionText}>🗑️</Text>
+                    <Text style={[styles.actionText, { color: '#FFFFFF' }]}>🗑️</Text>
                   </Animated.View>
                 </Pressable>
               </View>
