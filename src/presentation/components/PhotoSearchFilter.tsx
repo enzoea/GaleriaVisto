@@ -7,8 +7,10 @@ import {
   StyleSheet,
   Modal,
   Animated,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useThemeContext } from '../providers/ThemeProvider';
 
 export interface FilterOptions {
@@ -41,6 +43,8 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
 }) => {
   const { theme } = useThemeContext();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showDateFromPicker, setShowDateFromPicker] = useState(false);
+  const [showDateToPicker, setShowDateToPicker] = useState(false);
   const [tempFilters, setTempFilters] = useState<FilterOptions>({
     searchText: '',
     dateFrom: undefined,
@@ -126,6 +130,28 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR');
+  };
+
+  const handleDateFromChange = (event: any, selectedDate?: Date) => {
+    setShowDateFromPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setTempFilters(prev => ({ ...prev, dateFrom: selectedDate }));
+    }
+  };
+
+  const handleDateToChange = (event: any, selectedDate?: Date) => {
+    setShowDateToPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setTempFilters(prev => ({ ...prev, dateTo: selectedDate }));
+    }
+  };
+
+  const showDateFromSelector = () => {
+    setShowDateFromPicker(true);
+  };
+
+  const showDateToSelector = () => {
+    setShowDateToPicker(true);
   };
 
   const hasActiveFilters = tempFilters.dateFrom || tempFilters.dateTo || tempFilters.hasLocation !== undefined;
@@ -215,12 +241,18 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
             <View style={[styles.filterSection, { borderBottomColor: theme.colors.border }]}>
               <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Data</Text>
               <View style={styles.dateContainer}>
-                <TouchableOpacity style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
+                <TouchableOpacity 
+                  style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}
+                  onPress={showDateFromSelector}
+                >
                   <Text style={[styles.dateButtonText, { color: theme.colors.subtext }]}>
                     De: {tempFilters.dateFrom ? formatDate(tempFilters.dateFrom) : 'Selecionar'}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
+                <TouchableOpacity 
+                  style={[styles.dateButton, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}
+                  onPress={showDateToSelector}
+                >
                   <Text style={[styles.dateButtonText, { color: theme.colors.subtext }]}>
                     Até: {tempFilters.dateTo ? formatDate(tempFilters.dateTo) : 'Selecionar'}
                   </Text>
@@ -291,6 +323,24 @@ export const PhotoSearchFilter: React.FC<PhotoSearchFilterProps> = ({
           </Animated.View>
         </Animated.View>
       </Modal>
+
+      {showDateFromPicker && (
+        <DateTimePicker
+          value={tempFilters.dateFrom || new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDateFromChange}
+        />
+      )}
+
+      {showDateToPicker && (
+        <DateTimePicker
+          value={tempFilters.dateTo || new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDateToChange}
+        />
+      )}
     </View>
   );
 };
