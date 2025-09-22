@@ -24,6 +24,9 @@ export const CACHE_CONFIG = {
   MAX_CACHE_SIZE_MB: 100,
   CACHE_EXPIRY_HOURS: 24,
   PRELOAD_DISTANCE: 5, // Número de fotos para pré-carregar
+  DEFAULT_TTL: 24 * 60 * 60 * 1000, // 24 horas em milissegundos
+  PHOTO_TTL: 7 * 24 * 60 * 60 * 1000, // 7 dias em milissegundos
+  PHOTO_LIST_TTL: 60 * 60 * 1000, // 1 hora em milissegundos
 } as const;
 
 // Configurações de rede
@@ -55,6 +58,9 @@ export const STORAGE_KEYS = {
   CACHE: '@galeria_visto:cache',
   ANALYTICS: '@galeria_visto:analytics',
   OFFLINE_QUEUE: '@galeria_visto:offline_queue',
+  OFFLINE_ACTIONS: '@galeria_visto:offline_actions',
+  LAST_SYNC_TIME: '@galeria_visto:last_sync_time',
+  OFFLINE_CACHE: '@galeria_visto:offline_cache',
 } as const;
 
 // Eventos de analytics

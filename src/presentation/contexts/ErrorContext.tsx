@@ -146,6 +146,9 @@ function errorReducer(state: ErrorState, action: ErrorActionType): ErrorState {
 // Contexto
 const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
 
+// Exportar o contexto para uso em testes
+export { ErrorContext };
+
 // Provider
 interface ErrorProviderProps {
   children: React.ReactNode;
@@ -291,6 +294,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
           // Implementar retry genérico se necessário
           hideError();
         },
+        style: 'default',
       });
     }
 
