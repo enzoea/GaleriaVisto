@@ -132,6 +132,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
 
   return (
     <Animated.View
+      testID="photo-card-container"
       style={[
         styles.container,
         {
@@ -144,6 +145,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
       ]}
     >
       <TouchableOpacity
+        testID="photo-touchable"
         onPress={handlePress}
         onLongPress={handleLongPress}
         activeOpacity={0.8}
@@ -166,7 +168,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
           )}
 
           {imageLoading && !imageError && (
-            <View style={styles.loadingContainer}>
+            <View testID="loading-indicator" style={styles.loadingContainer}>
               <Text style={styles.loadingText}>Carregando...</Text>
             </View>
           )}
@@ -203,11 +205,12 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
 
       {onDelete && (
         <TouchableOpacity
+          testID="delete-button"
           style={styles.deleteButton}
           onPress={handleDelete}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="trash-outline" size={16} color="white" />
+           <Ionicons testID="ionicon-trash" name="trash" size={40} color="#FF4444" />
         </TouchableOpacity>
       )}
     </Animated.View>

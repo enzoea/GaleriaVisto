@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: tokens.spacing.md,
-    fontSize: tokens.typography.sizes.medium,
+    fontSize: tokens.typography.fontSize.md,
     color: tokens.colors.text.secondary,
   },
   emptyIcon: {
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     marginBottom: tokens.spacing.md,
   },
   emptyMessage: {
-    fontSize: tokens.typography.sizes.large,
+    fontSize: tokens.typography.fontSize.lg,
     color: tokens.colors.text.secondary,
     textAlign: 'center',
     marginBottom: tokens.spacing.sm,
