@@ -230,4 +230,4 @@ npm run test:coverage # Relatório de cobertura
 
 ## Autor
 
-Desenvolvido para demonstrar habilidades em React Native, TypeScript e desenvolvimento mobile moderno.
+Desenvolvido por Enzo Martins para demonstrar habilidades em React Native, TypeScript e desenvolvimento mobile moderno.
