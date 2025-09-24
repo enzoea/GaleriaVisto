@@ -9,6 +9,7 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Photo } from '../../../domain/photo/types';
 import { tokens } from '../../../design-system/tokens';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -206,7 +207,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
           onPress={handleDelete}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={[styles.deleteIcon, { color: '#FFFFFF' }]}>×</Text>
+          <Ionicons name="trash-outline" size={16} color="white" />
         </TouchableOpacity>
       )}
     </Animated.View>
@@ -215,16 +216,16 @@ export const PhotoCard: React.FC<PhotoCardProps> = memo(({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: tokens.colors.surface.primary,
-    borderRadius: tokens.borderRadius.medium,
-    margin: tokens.spacing.xs,
-    ...tokens.shadows.small,
+    backgroundColor: tokens.colors.primary['50'],
+    borderRadius: tokens.borderRadius.md,
+    margin: tokens.spacing[2],
+    ...tokens.shadows.sm,
     overflow: 'hidden',
   },
   selected: {
     borderWidth: 2,
-    borderColor: tokens.colors.primary.main,
-    ...tokens.shadows.medium,
+    borderColor: tokens.colors.primary['500'],
+    ...tokens.shadows.md,
   },
   touchable: {
     flex: 1,
@@ -243,34 +244,34 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: tokens.colors.surface.secondary,
+    backgroundColor: tokens.colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   loadingText: {
     color: tokens.colors.text.secondary,
-    fontSize: tokens.typography.sizes.small,
+    fontSize: tokens.typography.fontSize.sm,
   },
   errorContainer: {
     flex: 1,
-    backgroundColor: tokens.colors.surface.secondary,
+    backgroundColor: tokens.colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   errorText: {
     fontSize: 24,
-    marginBottom: tokens.spacing.xs,
+    marginBottom: tokens.spacing[2],
   },
   errorMessage: {
     color: tokens.colors.text.secondary,
-    fontSize: tokens.typography.sizes.small,
+    fontSize: tokens.typography.fontSize.sm,
     textAlign: 'center',
   },
   selectedOverlay: {
     position: 'absolute',
-    top: tokens.spacing.xs,
-    right: tokens.spacing.xs,
-    backgroundColor: tokens.colors.primary.main,
+    top: tokens.spacing[2],
+    right: tokens.spacing[2],
+    backgroundColor: tokens.colors.primary['500'],
     borderRadius: tokens.borderRadius.full,
     width: 24,
     height: 24,
@@ -278,34 +279,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedIcon: {
-    color: tokens.colors.primary.contrast,
+    color: tokens.colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
   infoContainer: {
-    padding: tokens.spacing.sm,
-    backgroundColor: tokens.colors.surface.primary,
+    padding: tokens.spacing[3],
+    backgroundColor: tokens.colors.background.primary,
   },
   title: {
-    fontSize: tokens.typography.sizes.medium,
-    fontWeight: tokens.typography.weights.medium,
+    fontSize: tokens.typography.fontSize.base,
+    fontWeight: tokens.typography.fontWeight.medium,
     color: tokens.colors.text.primary,
-    marginBottom: tokens.spacing.xs,
+    marginBottom: tokens.spacing[2],
   },
   location: {
-    fontSize: tokens.typography.sizes.small,
+    fontSize: tokens.typography.fontSize.sm,
     color: tokens.colors.text.secondary,
-    marginBottom: tokens.spacing.xs,
+    marginBottom: tokens.spacing[2],
   },
   metadata: {
-    fontSize: tokens.typography.sizes.small,
-    color: tokens.colors.text.tertiary,
+    fontSize: tokens.typography.fontSize.sm,
+    color: tokens.colors.text.disabled,
   },
   deleteButton: {
     position: 'absolute',
-    top: tokens.spacing.xs,
-    left: tokens.spacing.xs,
-    backgroundColor: tokens.colors.warning.delete,
+    top: tokens.spacing[2],
+    left: tokens.spacing[2],
+    backgroundColor: '#FF8C00',
     borderRadius: tokens.borderRadius.full,
     width: 24,
     height: 24,
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteIcon: {
-    color: '#FFFFFF',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },

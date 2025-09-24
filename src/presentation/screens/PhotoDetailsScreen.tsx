@@ -533,7 +533,7 @@ export default function PhotoDetailsScreen() {
           </PrimaryButton>
           
           <SecondaryButton onPress={handleDelete}>
-            <Ionicons name="trash" size={20} color="white" />
+            <Ionicons name="trash" size={20} color="#FF4444" />
             <ButtonText>Excluir</ButtonText>
           </SecondaryButton>
         </ActionButtonsRow>
